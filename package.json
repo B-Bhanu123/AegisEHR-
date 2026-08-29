@@ -1,0 +1,28 @@
+{
+  "name": "aegisehr-enterprise-platform",
+  "version": "2.4.0",
+  "private": true,
+  "description": "Enterprise Electronic Health Record (EHR) & Clinical Decision Support System (CDSS) with FHIR R4 Interoperability",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "count-loc": "node scripts/count-loc.js"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.263.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.5",
+    "vitest": "^0.34.1"
+  }
+}
