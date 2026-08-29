@@ -1,222 +1,109 @@
 /**
- * AegisEHR Enterprise Health Platform - Clinical Navigation Bar
+ * AegisEHR Enterprise Health Platform - Top Navigation Bar
  */
 
 import React, { useState } from 'react';
+import { Search, Bell, Shield, Clock, RefreshCw, Plus, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
-    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>Clinical Navigation Bar</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>AegisEHR Real-Time Clinical Workspace & Interoperability Hub</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>Refresh Telemetry</button>
-          <button style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>+ New Encounter</button>
-        </div>
-      </header>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ACTIVE PATIENTS</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-cyan)' }}>1,482</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>↑ 12% vs last month</span>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>CRITICAL ALERTS (NEWS2 ≥ 7)</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-rose)' }}>6</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-rose)' }}>Requires Immediate Triage</span>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>FHIR R4 ENDPOINT REQUESTS</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-purple)' }}>48,920</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>99.98% SLA Uptime</span>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>EDI 837 CLAIMS PENDING</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-amber)' }}>$248,500</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>Clean Claim Rate: 98.4%</span>
-        </div>
+    <header style={{
+      height: '64px',
+      background: 'var(--bg-secondary)',
+      borderBottom: '1px solid var(--border-color)',
+      padding: '0 1.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      position: 'sticky',
+      top: 0,
+      zIndex: 100
+    }}>
+      {/* Search Input */}
+      <div style={{ position: 'relative', width: '380px' }}>
+        <Search size={16} color="var(--text-secondary)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+        <input
+          type="text"
+          placeholder="Search by Patient Name, MRN, ICD-10, CPT or RxNorm..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.5rem 1rem 0.5rem 2.25rem',
+            borderRadius: '8px',
+            border: '1px solid var(--border-color)',
+            background: 'var(--bg-primary)',
+            color: 'var(--text-primary)',
+            fontSize: '0.85rem',
+            outline: 'none'
+          }}
+        />
       </div>
-    </div>
+
+      {/* Telemetry Status & Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* System Health Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.35rem 0.75rem', borderRadius: '20px' }}>
+          <CheckCircle size={14} color="var(--accent-emerald)" />
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent-emerald)' }}>FHIR R4 Live Node</span>
+        </div>
+
+        {/* HIPAA Compliance Indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+          <Shield size={14} color="var(--accent-cyan)" />
+          <span>AES-256 Encrypted</span>
+        </div>
+
+        {/* Notification Bell */}
+        <button
+          onClick={() => setNotificationsOpen(!notificationsOpen)}
+          style={{
+            position: 'relative',
+            background: 'var(--bg-hover)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer'
+          }}
+        >
+          <Bell size={18} color="var(--text-primary)" />
+          <span style={{
+            position: 'absolute',
+            top: '-2px',
+            right: '-2px',
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: 'var(--accent-rose)'
+          }} />
+        </button>
+
+        {/* Quick Action Button */}
+        <button style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          padding: '0.5rem 1rem',
+          borderRadius: '8px',
+          border: 'none',
+          background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-cyan))',
+          color: '#fff',
+          fontWeight: 600,
+          fontSize: '0.85rem',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)'
+        }}>
+          <Plus size={16} />
+          <span>New Encounter</span>
+        </button>
+      </div>
+    </header>
   );
 };
-
-export const NavbarSubComponent1: React.FC<{ title?: string }> = ({ title = 'SubComponent 1' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 1 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent2: React.FC<{ title?: string }> = ({ title = 'SubComponent 2' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 2 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent3: React.FC<{ title?: string }> = ({ title = 'SubComponent 3' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 3 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent4: React.FC<{ title?: string }> = ({ title = 'SubComponent 4' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 4 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent5: React.FC<{ title?: string }> = ({ title = 'SubComponent 5' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 5 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent6: React.FC<{ title?: string }> = ({ title = 'SubComponent 6' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 6 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent7: React.FC<{ title?: string }> = ({ title = 'SubComponent 7' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 7 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent8: React.FC<{ title?: string }> = ({ title = 'SubComponent 8' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 8 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent9: React.FC<{ title?: string }> = ({ title = 'SubComponent 9' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 9 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent10: React.FC<{ title?: string }> = ({ title = 'SubComponent 10' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 10 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent11: React.FC<{ title?: string }> = ({ title = 'SubComponent 11' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 11 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent12: React.FC<{ title?: string }> = ({ title = 'SubComponent 12' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 12 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent13: React.FC<{ title?: string }> = ({ title = 'SubComponent 13' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 13 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent14: React.FC<{ title?: string }> = ({ title = 'SubComponent 14' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 14 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent15: React.FC<{ title?: string }> = ({ title = 'SubComponent 15' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 15 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent16: React.FC<{ title?: string }> = ({ title = 'SubComponent 16' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 16 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent17: React.FC<{ title?: string }> = ({ title = 'SubComponent 17' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 17 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent18: React.FC<{ title?: string }> = ({ title = 'SubComponent 18' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 18 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent19: React.FC<{ title?: string }> = ({ title = 'SubComponent 19' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 19 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent20: React.FC<{ title?: string }> = ({ title = 'SubComponent 20' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 20 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent21: React.FC<{ title?: string }> = ({ title = 'SubComponent 21' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 21 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent22: React.FC<{ title?: string }> = ({ title = 'SubComponent 22' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 22 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent23: React.FC<{ title?: string }> = ({ title = 'SubComponent 23' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 23 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent24: React.FC<{ title?: string }> = ({ title = 'SubComponent 24' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 24 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const NavbarSubComponent25: React.FC<{ title?: string }> = ({ title = 'SubComponent 25' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 25 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
