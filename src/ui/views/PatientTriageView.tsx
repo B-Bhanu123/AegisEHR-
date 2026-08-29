@@ -1,222 +1,123 @@
 /**
- * AegisEHR Enterprise Health Platform - Emergency Room Patient Triage
+ * AegisEHR Enterprise Health Platform - ER Patient Triage & Registry View
  */
 
 import React, { useState } from 'react';
+import { Users, Stethoscope, Search, Filter, AlertTriangle, Plus, CheckCircle, FileText } from 'lucide-react';
 
 export const PatientTriageView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [filterEsi, setFilterEsi] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const triageList = [
+    { id: 'PAT-1001', mrn: 'MRN-9981203', name: 'Eleanor Vance', age: 64, gender: 'Female', esi: 2, condition: 'Acute Coronary Syndrome', news2: 8, room: 'ICU-B04', vitals: '164/98 mmHg | HR 112 | SpO2 92%', triagedAt: '10 mins ago', doctor: 'Dr. Sarah Jenkins' },
+    { id: 'PAT-1002', mrn: 'MRN-4418290', name: 'Marcus Brody', age: 52, gender: 'Male', esi: 3, condition: 'Type 2 Diabetes Hyperglycemia', news2: 4, room: 'WARD-201', vitals: '138/84 mmHg | HR 88 | SpO2 96%', triagedAt: '25 mins ago', doctor: 'Dr. Alan Grant' },
+    { id: 'PAT-1003', mrn: 'MRN-7731902', name: 'Sophia Chen', age: 29, gender: 'Female', esi: 4, condition: 'Acute Asthma Exacerbation', news2: 3, room: 'ED-T02', vitals: '118/76 mmHg | HR 92 | SpO2 95%', triagedAt: '40 mins ago', doctor: 'Dr. Ian Malcolm' },
+    { id: 'PAT-1004', mrn: 'MRN-1129038', name: 'Robert Tanaka', age: 71, gender: 'Male', esi: 1, condition: 'Septic Shock / Pneumonia', news2: 11, room: 'ICU-A01', vitals: '82/50 mmHg | HR 134 | SpO2 88%', triagedAt: '5 mins ago', doctor: 'Dr. Ellie Sattler' },
+    { id: 'PAT-1005', mrn: 'MRN-5529103', name: 'David Miller', age: 45, gender: 'Male', esi: 2, condition: 'Severe Abdominal Pain / Appendicitis', news2: 6, room: 'ED-T05', vitals: '142/90 mmHg | HR 104 | SpO2 98%', triagedAt: '15 mins ago', doctor: 'Dr. Sarah Jenkins' }
+  ];
+
+  const filtered = triageList.filter(p => {
+    const matchesEsi = filterEsi === 'ALL' || p.esi.toString() === filterEsi;
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.mrn.toLowerCase().includes(searchTerm.toLowerCase()) || p.condition.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesEsi && matchesSearch;
+  });
 
   return (
     <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>Emergency Room Patient Triage</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>AegisEHR Real-Time Clinical Workspace & Interoperability Hub</p>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Stethoscope color="var(--accent-blue)" />
+            Emergency Triage & Patient Registry
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Real-Time Emergency Severity Index (ESI 1-5) & Acuity Management</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>Refresh Telemetry</button>
-          <button style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>+ New Encounter</button>
-        </div>
+        <button style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <Plus size={16} />
+          <span>Triage New Patient</span>
+        </button>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ACTIVE PATIENTS</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-cyan)' }}>1,482</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>↑ 12% vs last month</span>
+      {/* Filter Tabs & Search Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-secondary)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {['ALL', '1', '2', '3', '4'].map(esi => (
+            <button
+              key={esi}
+              onClick={() => setFilterEsi(esi)}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '6px',
+                border: 'none',
+                background: filterEsi === esi ? 'var(--accent-blue)' : 'var(--bg-primary)',
+                color: filterEsi === esi ? '#fff' : 'var(--text-secondary)',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              {esi === 'ALL' ? 'All ESI Levels' : `ESI Level ${esi}`}
+            </button>
+          ))}
         </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>CRITICAL ALERTS (NEWS2 ≥ 7)</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-rose)' }}>6</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-rose)' }}>Requires Immediate Triage</span>
+
+        <div style={{ position: 'relative', width: '280px' }}>
+          <Search size={14} color="var(--text-secondary)" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            type="text"
+            placeholder="Filter Queue..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: '100%', padding: '0.4rem 0.75rem 0.4rem 2rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '0.8rem' }}
+          />
         </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>FHIR R4 ENDPOINT REQUESTS</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-purple)' }}>48,920</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>99.98% SLA Uptime</span>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>EDI 837 CLAIMS PENDING</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-amber)' }}>$248,500</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>Clean Claim Rate: 98.4%</span>
-        </div>
+      </div>
+
+      {/* Triage Data Table */}
+      <div className="glass-panel" style={{ overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+              <th style={{ padding: '0.85rem 1rem' }}>Patient Name / MRN</th>
+              <th style={{ padding: '0.85rem 1rem' }}>ESI Acuity</th>
+              <th style={{ padding: '0.85rem 1rem' }}>Chief Complaint</th>
+              <th style={{ padding: '0.85rem 1rem' }}>Vitals Summary</th>
+              <th style={{ padding: '0.85rem 1rem' }}>NEWS2 Score</th>
+              <th style={{ padding: '0.85rem 1rem' }}>Room / Bed</th>
+              <th style={{ padding: '0.85rem 1rem' }}>Attending Physician</th>
+              <th style={{ padding: '0.85rem 1rem' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(p => (
+              <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '0.85rem 1rem' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.name}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{p.mrn} • {p.gender}, {p.age}y</div>
+                </td>
+                <td style={{ padding: '0.85rem 1rem' }}>
+                  <span className={`badge ${p.esi === 1 ? 'badge-danger' : p.esi === 2 ? 'badge-warning' : 'badge-info'}`}>
+                    ESI Level {p.esi}
+                  </span>
+                </td>
+                <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{p.condition}</td>
+                <td style={{ padding: '0.85rem 1rem', color: 'var(--accent-cyan)', fontFamily: 'monospace' }}>{p.vitals}</td>
+                <td style={{ padding: '0.85rem 1rem' }}>
+                  <span style={{ fontWeight: 800, color: p.news2 >= 7 ? 'var(--accent-rose)' : 'var(--accent-emerald)' }}>{p.news2}</span>
+                </td>
+                <td style={{ padding: '0.85rem 1rem', color: 'var(--text-primary)' }}>{p.room}</td>
+                <td style={{ padding: '0.85rem 1rem', color: 'var(--text-secondary)' }}>{p.doctor}</td>
+                <td style={{ padding: '0.85rem 1rem' }}>
+                  <button style={{ padding: '0.35rem 0.65rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.75rem' }}>
+                    View Chart
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
-
-export const PatientTriageViewSubComponent1: React.FC<{ title?: string }> = ({ title = 'SubComponent 1' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 1 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent2: React.FC<{ title?: string }> = ({ title = 'SubComponent 2' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 2 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent3: React.FC<{ title?: string }> = ({ title = 'SubComponent 3' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 3 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent4: React.FC<{ title?: string }> = ({ title = 'SubComponent 4' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 4 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent5: React.FC<{ title?: string }> = ({ title = 'SubComponent 5' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 5 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent6: React.FC<{ title?: string }> = ({ title = 'SubComponent 6' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 6 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent7: React.FC<{ title?: string }> = ({ title = 'SubComponent 7' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 7 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent8: React.FC<{ title?: string }> = ({ title = 'SubComponent 8' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 8 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent9: React.FC<{ title?: string }> = ({ title = 'SubComponent 9' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 9 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent10: React.FC<{ title?: string }> = ({ title = 'SubComponent 10' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 10 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent11: React.FC<{ title?: string }> = ({ title = 'SubComponent 11' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 11 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent12: React.FC<{ title?: string }> = ({ title = 'SubComponent 12' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 12 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent13: React.FC<{ title?: string }> = ({ title = 'SubComponent 13' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 13 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent14: React.FC<{ title?: string }> = ({ title = 'SubComponent 14' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 14 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent15: React.FC<{ title?: string }> = ({ title = 'SubComponent 15' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 15 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent16: React.FC<{ title?: string }> = ({ title = 'SubComponent 16' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 16 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent17: React.FC<{ title?: string }> = ({ title = 'SubComponent 17' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 17 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent18: React.FC<{ title?: string }> = ({ title = 'SubComponent 18' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 18 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent19: React.FC<{ title?: string }> = ({ title = 'SubComponent 19' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 19 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent20: React.FC<{ title?: string }> = ({ title = 'SubComponent 20' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 20 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent21: React.FC<{ title?: string }> = ({ title = 'SubComponent 21' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 21 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent22: React.FC<{ title?: string }> = ({ title = 'SubComponent 22' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 22 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent23: React.FC<{ title?: string }> = ({ title = 'SubComponent 23' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 23 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent24: React.FC<{ title?: string }> = ({ title = 'SubComponent 24' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 24 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const PatientTriageViewSubComponent25: React.FC<{ title?: string }> = ({ title = 'SubComponent 25' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 25 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);

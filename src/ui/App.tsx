@@ -1,5 +1,5 @@
 /**
- * AegisEHR Enterprise Health Platform - Main Application Layout & View Router
+ * AegisEHR Enterprise Health Platform - Main App Router
  */
 
 import React, { useState } from 'react';
@@ -8,10 +8,11 @@ import { Navbar } from './components/Navbar';
 import { DoctorDashboard } from './views/DoctorDashboard';
 import { PatientTriageView } from './views/PatientTriageView';
 import { PharmacyQueueView } from './views/PharmacyQueueView';
-import { BillingPortalView } from './views/BillingPortalView';
-import { SecurityAuditView } from './views/SecurityAuditView';
 import { FHIRResourceInspector } from './components/FHIRResourceInspector';
 import { DicomCanvasViewer } from './components/DicomCanvasViewer';
+import { BillingPortalView } from './views/BillingPortalView';
+import { TelemedicineHubView } from './views/TelemedicineHubView';
+import { SecurityAuditView } from './views/SecurityAuditView';
 
 export const App: React.FC = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -32,6 +33,8 @@ export const App: React.FC = () => {
         return <DicomCanvasViewer />;
       case 'billing':
         return <BillingPortalView />;
+      case 'telehealth':
+        return <TelemedicineHubView />;
       case 'security':
         return <SecurityAuditView />;
       default:

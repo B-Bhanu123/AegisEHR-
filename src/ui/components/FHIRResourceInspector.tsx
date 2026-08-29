@@ -1,222 +1,83 @@
 /**
- * AegisEHR Enterprise Health Platform - FHIR R4 Inspector
+ * AegisEHR Enterprise Health Platform - FHIR R4 JSON Inspector
  */
 
 import React, { useState } from 'react';
+import { Database, Code, CheckCircle, Copy } from 'lucide-react';
 
 export const FHIRResourceInspector: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedResource, setSelectedResource] = useState('Patient');
+
+  const fhirExamples: Record<string, any> = {
+    Patient: {
+      resourceType: 'Patient',
+      id: 'PAT-1001',
+      meta: { profile: ['http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient'] },
+      identifier: [{ use: 'official', system: 'urn:oid:2.16.840.1.113883.4.1', value: 'MRN-9981203' }],
+      active: true,
+      name: [{ use: 'official', family: 'Vance', given: ['Eleanor'] }],
+      gender: 'female',
+      birthDate: '1960-05-15'
+    },
+    Encounter: {
+      resourceType: 'Encounter',
+      id: 'ENC-2022',
+      status: 'in-progress',
+      class: { system: 'http://terminology.hl7.org/CodeSystem/v3-ActCode', code: 'EMER', display: 'emergency' },
+      subject: { reference: 'Patient/PAT-1001', display: 'Eleanor Vance' }
+    },
+    Observation: {
+      resourceType: 'Observation',
+      id: 'OBS-99201',
+      status: 'final',
+      category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'vital-signs' }] }],
+      code: { coding: [{ system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' }] },
+      valueQuantity: { value: 112, unit: 'beats/min', system: 'http://unitsofmeasure.org', code: '/min' }
+    }
+  };
 
   return (
     <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>FHIR R4 Inspector</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>AegisEHR Real-Time Clinical Workspace & Interoperability Hub</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>Refresh Telemetry</button>
-          <button style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>+ New Encounter</button>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Database color="var(--accent-cyan)" />
+            FHIR R4 Resource Inspector & Schema Validator
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>HL7 FHIR Release 4 Specifications & JSON Schema Validation Engine</p>
         </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>ACTIVE PATIENTS</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-cyan)' }}>1,482</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>↑ 12% vs last month</span>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        {['Patient', 'Encounter', 'Observation'].map(res => (
+          <button
+            key={res}
+            onClick={() => setSelectedResource(res)}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              border: 'none',
+              background: selectedResource === res ? 'var(--accent-cyan)' : 'var(--bg-secondary)',
+              color: selectedResource === res ? '#000' : 'var(--text-primary)',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            {res} Resource
+          </button>
+        ))}
+      </div>
+
+      <div className="glass-panel" style={{ padding: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--accent-emerald)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <CheckCircle size={14} /> Validated US Core {selectedResource} Profile
+          </span>
         </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>CRITICAL ALERTS (NEWS2 ≥ 7)</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-rose)' }}>6</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-rose)' }}>Requires Immediate Triage</span>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>FHIR R4 ENDPOINT REQUESTS</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-purple)' }}>48,920</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>99.98% SLA Uptime</span>
-        </div>
-        <div className="glass-panel" style={{ padding: '1.25rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>EDI 837 CLAIMS PENDING</span>
-          <div style={{ fontSize: '1.875rem', fontWeight: 800, marginTop: '0.25rem', color: 'var(--accent-amber)' }}>$248,500</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>Clean Claim Rate: 98.4%</span>
-        </div>
+        <pre style={{ background: 'var(--bg-primary)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--accent-cyan)', fontSize: '0.85rem', overflowX: 'auto' }}>
+          {JSON.stringify(fhirExamples[selectedResource], null, 2)}
+        </pre>
       </div>
     </div>
   );
 };
-
-export const FHIRResourceInspectorSubComponent1: React.FC<{ title?: string }> = ({ title = 'SubComponent 1' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 1 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent2: React.FC<{ title?: string }> = ({ title = 'SubComponent 2' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 2 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent3: React.FC<{ title?: string }> = ({ title = 'SubComponent 3' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 3 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent4: React.FC<{ title?: string }> = ({ title = 'SubComponent 4' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 4 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent5: React.FC<{ title?: string }> = ({ title = 'SubComponent 5' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 5 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent6: React.FC<{ title?: string }> = ({ title = 'SubComponent 6' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 6 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent7: React.FC<{ title?: string }> = ({ title = 'SubComponent 7' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 7 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent8: React.FC<{ title?: string }> = ({ title = 'SubComponent 8' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 8 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent9: React.FC<{ title?: string }> = ({ title = 'SubComponent 9' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 9 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent10: React.FC<{ title?: string }> = ({ title = 'SubComponent 10' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 10 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent11: React.FC<{ title?: string }> = ({ title = 'SubComponent 11' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 11 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent12: React.FC<{ title?: string }> = ({ title = 'SubComponent 12' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 12 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent13: React.FC<{ title?: string }> = ({ title = 'SubComponent 13' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 13 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent14: React.FC<{ title?: string }> = ({ title = 'SubComponent 14' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 14 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent15: React.FC<{ title?: string }> = ({ title = 'SubComponent 15' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 15 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent16: React.FC<{ title?: string }> = ({ title = 'SubComponent 16' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 16 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent17: React.FC<{ title?: string }> = ({ title = 'SubComponent 17' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 17 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent18: React.FC<{ title?: string }> = ({ title = 'SubComponent 18' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 18 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent19: React.FC<{ title?: string }> = ({ title = 'SubComponent 19' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 19 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent20: React.FC<{ title?: string }> = ({ title = 'SubComponent 20' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 20 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent21: React.FC<{ title?: string }> = ({ title = 'SubComponent 21' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 21 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent22: React.FC<{ title?: string }> = ({ title = 'SubComponent 22' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 22 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent23: React.FC<{ title?: string }> = ({ title = 'SubComponent 23' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 23 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent24: React.FC<{ title?: string }> = ({ title = 'SubComponent 24' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 24 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
-
-export const FHIRResourceInspectorSubComponent25: React.FC<{ title?: string }> = ({ title = 'SubComponent 25' }) => (
-  <div className="glass-panel" style={{ padding: '1rem' }}>
-    <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{title}</h4>
-    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Clinical Data Widget 25 rendering clinical metrics and active FHIR bindings.</p>
-  </div>
-);
