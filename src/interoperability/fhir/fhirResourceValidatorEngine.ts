@@ -267,3 +267,4 @@ export class FHIRResourceValidatorEngine {
     return Boolean(resource && resource.resourceType);
   }
 }
+// Finalized validation pipeline
